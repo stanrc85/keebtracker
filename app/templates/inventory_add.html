@@ -18,6 +18,57 @@
             <label for="acquired_date" class="form-label">Acquired Date</label>
             <input type="date" class="form-control" id="acquired_date" name="acquired_date">
         </div>
+        {% elif category == 'pcbs' %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="firmware" class="form-label">Firmware</label>
+            <input type="text" class="form-control" id="firmware" name="firmware">
+        </div>
+        {% elif category == 'switches' %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="type" class="form-label">Type</label>
+            <select class="form-control" id="type" name="type">
+                <option value="Linear">Linear</option>
+                <option value="Tactile">Tactile</option>
+                <option value="Clicky">Clicky</option>
+                <option value="Silent">Silent</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" value="0">
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="lubed" name="lubed">
+            <label class="form-check-label" for="lubed">Lubed</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="filmed" name="filmed">
+            <label class="form-check-label" for="filmed">Filmed</label>
+        </div>
+        {% elif category == 'keycaps' %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="profile" class="form-label">Profile</label>
+            <input type="text" class="form-control" id="profile" name="profile">
+        </div>
+        <div class="mb-3">
+            <label for="material" class="form-label">Material</label>
+            <select class="form-control" id="material" name="material">
+                <option value="ABS">ABS</option>
+                <option value="PBT">PBT</option>
+            </select>
+        </div>
         {% endif %}
         <button type="submit" class="btn btn-primary">Add</button>
         <button type="button" class="btn btn-secondary" hx-get="/inventory/{{ category }}" hx-target="#content">Cancel</button>

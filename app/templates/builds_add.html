@@ -1,0 +1,55 @@
+<div>
+    <h4>Add New Build</h4>
+    <form hx-post="/builds/add" hx-target="#content">
+        <div class="mb-3">
+            <label for="name" class="form-label">Build Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="case_id" class="form-label">Case</label>
+            <select class="form-control" id="case_id" name="case_id">
+                <option value="">Select Case</option>
+                {% for case in cases %}
+                <option value="{{ case.id }}">{{ case.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="pcb_id" class="form-label">PCB</label>
+            <select class="form-control" id="pcb_id" name="pcb_id">
+                <option value="">Select PCB</option>
+                {% for pcb in pcbs %}
+                <option value="{{ pcb.id }}">{{ pcb.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="switch_id" class="form-label">Switches</label>
+            <select class="form-control" id="switch_id" name="switch_id">
+                <option value="">Select Switches</option>
+                {% for switch in switches %}
+                <option value="{{ switch.id }}">{{ switch.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="keycap_id" class="form-label">Keycaps</label>
+            <select class="form-control" id="keycap_id" name="keycap_id">
+                <option value="">Select Keycaps</option>
+                {% for keycap in keycaps %}
+                <option value="{{ keycap.id }}">{{ keycap.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-control" id="status" name="status">
+                <option value="Active">Active</option>
+                <option value="Display">Display</option>
+                <option value="Disassembled">Disassembled</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Build</button>
+        <button type="button" class="btn btn-secondary" hx-get="/builds" hx-target="#content">Cancel</button>
+    </form>
+</div>

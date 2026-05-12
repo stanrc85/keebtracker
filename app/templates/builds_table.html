@@ -1,0 +1,28 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Case</th>
+            <th>PCB</th>
+            <th>Switches</th>
+            <th>Keycaps</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for build in builds %}
+        <tr>
+            <td>{{ build.name }}</td>
+            <td>{{ build.case.name if build.case else 'N/A' }}</td>
+            <td>{{ build.pcb.name if build.pcb else 'N/A' }}</td>
+            <td>{{ build.switch.name if build.switch else 'N/A' }}</td>
+            <td>{{ build.keycap.name if build.keycap else 'N/A' }}</td>
+            <td>{{ build.status.value }}</td>
+            <td>
+                <button class="btn btn-sm btn-info" hx-get="/builds/{{ build.id }}" hx-target="#content">View</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

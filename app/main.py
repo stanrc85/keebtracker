@@ -92,11 +92,11 @@ def create_build(build: dict, db: Session = Depends(get_db)):
     return new_build
 
 @app.get("/api/builds/{id}")
-def get_build(id: str, db: Session = Depends(get_db)):
+def get_build_detail(id: str, request: Request, db: Session = Depends(get_db)):
     build = db.query(Build).filter(Build.id == id).first()
     if not build:
         raise HTTPException(status_code=404, detail="Build not found")
-    return build
+    return templates.TemplateResponse("build_detail.html", {"request": request, "build": build})
 
 @app.put("/api/builds/{id}")
 def update_build(id: str, build_update: dict, db: Session = Depends(get_db)):
@@ -145,19 +145,63 @@ def get_media(filename: str):
     # Served via static mount
     pass
 
-@app.get("/builds")
-def get_builds_html(request: Request, db: Session = Depends(get_db)):
-    builds = db.query(Build).all()
-    return templates.TemplateResponse("builds_list.html", {"request": request, "builds": builds})
+@app.get("/builds/search")
+def search_builds(q: str = "", db: Session = Depends(get_db)):
+    if not q:
+        builds = db.query(Build).all()
+    else:
+        builds = db.query(Build).join(Case, Build.case_id == Case.id, isouter=True)\
+            .join(PCB, Build.pcb_id == PCB.id, isouter=True)\
+            .join(Switch, Build.switch_id == Switch.id, isouter=True)\
+            .join(Keycap, Build.keycap_id == Keycap.id, isouter=True)\
+            .filter(
+                (Build.name.ilike(f"%{q}%")) |
+                (Case.name.ilike(f"%{q}%")) |
+                (PCB.name.ilike(f"%{q}%")) |
+                (Switch.name.ilike(f"%{q}%")) |
+                (Keycap.name.ilike(f"%{q}%"))
+            ).all()
+    return templates.TemplateResponse("builds_table.html", {"builds": builds})
+
+@app.post("/builds/add")
+async def add_build(request: Request, db: Session = Depends(get_db)):
+    form_data = await request.form()
+    item_data = dict(form_data)
+    new_build = Build(**item_data)
+    db.add(new_build)
+    db.commit()
+    db.refresh(new_build)
+    return templates.TemplateResponse("builds_list.html", {"request": request, "builds": db.query(Build).all()})
 
 @app.post("/inventory/{category}/add")
 async def add_inventory(category: str, request: Request, db: Session = Depends(get_db)):
     form_data = await request.form()
     item_data = dict(form_data)
+    # Convert checkboxes
+    if 'lubed' in item_data:
+        item_data['lubed'] = item_data['lubed'] == 'on'
+    if 'filmed' in item_data:
+        item_data['filmed'] = item_data['filmed'] == 'on'
     if category == "cases":
         new_item = Case(**item_data)
-    # Add others similarly
+    elif category == "pcbs":
+        new_item = PCB(**item_data)
+    elif category == "switches":
+        new_item = Switch(**item_data)
+    elif category == "keycaps":
+        new_item = Keycap(**item_data)
+    else:
+        raise HTTPException(status_code=400, detail="Invalid category")
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
-    return templates.TemplateResponse("inventory_list.html", {"request": request, "items": db.query(Case).all() if category == "cases" else [], "category": category})
+    # Return updated list
+    if category == "cases":
+        items = db.query(Case).all()
+    elif category == "pcbs":
+        items = db.query(PCB).all()
+    elif category == "switches":
+        items = db.query(Switch).all()
+    elif category == "keycaps":
+        items = db.query(Keycap).all()
+    return templates.TemplateResponse("inventory_list.html", {"request": request, "items": items, "category": category})

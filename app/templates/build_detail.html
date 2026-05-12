@@ -1,0 +1,63 @@
+<div>
+    <h4>Build Details: {{ build.name }}</h4>
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Components</h5>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Case:</strong> {{ build.case.name if build.case else 'N/A' }}</li>
+                <li class="list-group-item"><strong>PCB:</strong> {{ build.pcb.name if build.pcb else 'N/A' }}</li>
+                <li class="list-group-item"><strong>Switches:</strong> {{ build.switch.name if build.switch else 'N/A' }}</li>
+                <li class="list-group-item"><strong>Keycaps:</strong> {{ build.keycap.name if build.keycap else 'N/A' }}</li>
+                <li class="list-group-item"><strong>Status:</strong> {{ build.status.value }}</li>
+                <li class="list-group-item"><strong>Created:</strong> {{ build.created_at.strftime('%Y-%m-%d') }}</li>
+                <li class="list-group-item"><strong>Updated:</strong> {{ build.updated_at.strftime('%Y-%m-%d') }}</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h5>Revision History</h5>
+            <ul class="list-group">
+                {% for rev in build.revisions %}
+                <li class="list-group-item">
+                    Changed {{ rev.changed_component_type }}: {{ rev.old_component_id }} → {{ rev.new_component_id }} on {{ rev.changed_at.strftime('%Y-%m-%d') }}
+                </li>
+                {% endfor %}
+                {% if not build.revisions %}
+                <li class="list-group-item">No revisions yet.</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div class="mt-4">
+        <h5>Media</h5>
+        <div class="row">
+            {% for media in build.media %}
+            <div class="col-md-4 mb-3">
+                {% if media.media_type == 'image' %}
+                <img src="/media/{{ media.file_path }}" class="img-fluid" alt="Build image">
+                {% elif media.media_type == 'audio_soundtest' %}
+                <audio controls>
+                    <source src="/media/{{ media.file_path }}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <form hx-post="/builds/{{ build.id }}/media" hx-target="#media-section" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="file" class="form-label">Upload Media</label>
+                <input type="file" class="form-control" id="file" name="file" required>
+            </div>
+            <div class="mb-3">
+                <label for="media_type" class="form-label">Type</label>
+                <select class="form-control" id="media_type" name="media_type">
+                    <option value="image">Image</option>
+                    <option value="audio_soundtest">Sound Test</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+        <div id="media-section"></div>
+    </div>
+    <button class="btn btn-secondary mt-3" hx-get="/builds" hx-target="#content">Back to Builds</button>
+</div>

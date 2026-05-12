@@ -1,12 +1,10 @@
 <div>
     <h4>Builds</h4>
     <button class="btn btn-primary mb-3" hx-get="/builds/add" hx-target="#content">Add New Build</button>
-    <ul class="list-group">
-        {% for build in builds %}
-        <li class="list-group-item">
-            {{ build.name }} (Status: {{ build.status.value }})
-            <button class="btn btn-sm btn-secondary float-end" hx-get="/builds/{{ build.id }}" hx-target="#content">View</button>
-        </li>
-        {% endfor %}
-    </ul>
+    <div class="mb-3">
+        <input type="text" class="form-control" id="search" placeholder="Search builds by name, case, PCB, switches, or keycaps..." hx-get="/builds/search" hx-target="#builds-table" hx-trigger="keyup changed delay:300ms" name="q">
+    </div>
+    <div id="builds-table">
+        {% include 'builds_table.html' %}
+    </div>
 </div>
