@@ -18,7 +18,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.mount("/media", StaticFiles(directory="data/media"), name="media")
 
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory="/app/app/templates")
 
 # Pydantic models for API
 class CaseCreate(BaseModel):
