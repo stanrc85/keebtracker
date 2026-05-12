@@ -1,0 +1,12 @@
+<div>
+    <h4>{{ category|title }} Inventory</h4>
+    <button class="btn btn-primary mb-3" hx-get="/inventory/{{ category }}/add" hx-target="#content">Add New</button>
+    <ul class="list-group">
+        {% for item in items %}
+        <li class="list-group-item">
+            {{ item.name }} (ID: {{ item.id }})
+            <button class="btn btn-sm btn-secondary float-end" hx-get="/inventory/{{ category }}/{{ item.id }}/edit" hx-target="#content">Edit</button>
+        </li>
+        {% endfor %}
+    </ul>
+</div>

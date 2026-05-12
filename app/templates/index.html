@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeebTracker</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>KeebTracker</h1>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <h3>Inventory</h3>
+                <ul class="nav nav-pills flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" hx-get="/inventory/cases" hx-target="#content">Cases</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" hx-get="/inventory/pcbs" hx-target="#content">PCBs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" hx-get="/inventory/switches" hx-target="#content">Switches</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" hx-get="/inventory/keycaps" hx-target="#content">Keycaps</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" hx-get="/builds" hx-target="#content">Builds</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-9">
+                <div id="content">
+                    <p>Welcome to KeebTracker. Select an inventory category to view items.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

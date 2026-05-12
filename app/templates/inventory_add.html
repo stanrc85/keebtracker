@@ -1,0 +1,25 @@
+<div>
+    <h4>Add New {{ category|title }}</h4>
+    <form hx-post="/inventory/{{ category }}/add" hx-target="#content">
+        {% if category == 'cases' %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="color" class="form-label">Color</label>
+            <input type="text" class="form-control" id="color" name="color">
+        </div>
+        <div class="mb-3">
+            <label for="material" class="form-label">Material</label>
+            <input type="text" class="form-control" id="material" name="material">
+        </div>
+        <div class="mb-3">
+            <label for="acquired_date" class="form-label">Acquired Date</label>
+            <input type="date" class="form-control" id="acquired_date" name="acquired_date">
+        </div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Add</button>
+        <button type="button" class="btn btn-secondary" hx-get="/inventory/{{ category }}" hx-target="#content">Cancel</button>
+    </form>
+</div>

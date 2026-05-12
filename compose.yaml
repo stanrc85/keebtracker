@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  keebtracker:
+    build: .
+    container_name: keebtracker_app
+    ports:
+      - "8080:8000"
+    volumes:
+      - app_data:/app/data
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=sqlite:////app/data/keebtracker.db
+      - MEDIA_UPLOAD_DIR=/app/data/media
+
+volumes:
+  app_data:
+    driver: local
