@@ -227,7 +227,7 @@ async def add_build(request: Request, db: Session = Depends(get_db)):
     db.add(new_build)
     db.commit()
     db.refresh(new_build)
-    return templates.TemplateResponse("builds_list.html", {"request": request, "builds": db.query(Build).all()})
+    return templates.TemplateResponse("builds_list.html", {"builds": db.query(Build).all()})
 
 @app.post("/inventory/{category}/add")
 async def add_inventory(category: str, request: Request, db: Session = Depends(get_db)):
