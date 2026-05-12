@@ -35,7 +35,7 @@ class CaseResponse(CaseCreate):
 # API Endpoints
 
 @app.get("/inventory/{category}")
-def get_inventory_html(category: str, request: Request, db: Session = Depends(get_db)):
+def get_inventory_html(category: str, db: Session = Depends(get_db)):
     if category == "cases":
         items = db.query(Case).all()
     elif category == "pcbs":
@@ -46,7 +46,7 @@ def get_inventory_html(category: str, request: Request, db: Session = Depends(ge
         items = db.query(Keycap).all()
     else:
         raise HTTPException(status_code=400, detail="Invalid category")
-    return templates.TemplateResponse("inventory_list.html", {"request": request, "items": items, "category": category})
+    return templates.TemplateResponse("inventory_list.html", {"items": items, "category": category})
 
 @app.post("/api/inventory/{category}")
 def add_inventory_item(category: str, item: dict, db: Session = Depends(get_db)):
@@ -92,11 +92,11 @@ def create_build(build: dict, db: Session = Depends(get_db)):
     return new_build
 
 @app.get("/api/builds/{id}")
-def get_build_detail(id: str, request: Request, db: Session = Depends(get_db)):
+def get_build_detail(id: str, db: Session = Depends(get_db)):
     build = db.query(Build).filter(Build.id == id).first()
     if not build:
         raise HTTPException(status_code=404, detail="Build not found")
-    return templates.TemplateResponse("build_detail.html", {"request": request, "build": build})
+    return templates.TemplateResponse("build_detail.html", {"build": build})
 
 @app.put("/api/builds/{id}")
 def update_build(id: str, build_update: dict, db: Session = Depends(get_db)):
@@ -164,12 +164,12 @@ def search_builds(q: str = "", db: Session = Depends(get_db)):
     return templates.TemplateResponse("builds_table.html", {"builds": builds})
 
 @app.get("/builds/add")
-def add_build_form(request: Request, db: Session = Depends(get_db)):
+def add_build_form(db: Session = Depends(get_db)):
     cases = db.query(Case).all()
     pcbs = db.query(PCB).all()
     switches = db.query(Switch).all()
     keycaps = db.query(Keycap).all()
-    return templates.TemplateResponse("builds_add.html", {"request": request, "cases": cases, "pcbs": pcbs, "switches": switches, "keycaps": keycaps})
+    return templates.TemplateResponse("builds_add.html", {"cases": cases, "pcbs": pcbs, "switches": switches, "keycaps": keycaps})
 
 @app.post("/builds/add")
 async def add_build(request: Request, db: Session = Depends(get_db)):
@@ -179,7 +179,7 @@ async def add_build(request: Request, db: Session = Depends(get_db)):
     db.add(new_build)
     db.commit()
     db.refresh(new_build)
-    return templates.TemplateResponse("builds_list.html", {"request": request, "builds": db.query(Build).all()})
+    return templates.TemplateResponse("builds_list.html", {"builds": db.query(Build).all()})
 
 @app.post("/inventory/{category}/add")
 async def add_inventory(category: str, request: Request, db: Session = Depends(get_db)):
@@ -212,12 +212,12 @@ async def add_inventory(category: str, request: Request, db: Session = Depends(g
         items = db.query(Switch).all()
     elif category == "keycaps":
         items = db.query(Keycap).all()
-    return templates.TemplateResponse("inventory_list.html", {"request": request, "items": items, "category": category})
+    return templates.TemplateResponse("inventory_list.html", {"items": items, "category": category})
 
 # Frontend routes
 @app.get("/")
-def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+def home():
+    return templates.TemplateResponse("index.html", {})
 
 @app.post("/builds/add")
 async def add_build(request: Request, db: Session = Depends(get_db)):
@@ -260,4 +260,4 @@ async def add_inventory(category: str, request: Request, db: Session = Depends(g
         items = db.query(Switch).all()
     elif category == "keycaps":
         items = db.query(Keycap).all()
-    return templates.TemplateResponse("inventory_list.html", {"request": request, "items": items, "category": category})
+    return templates.TemplateResponse("inventory_list.html", {"items": items, "category": category})
