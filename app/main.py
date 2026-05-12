@@ -163,6 +163,62 @@ def search_builds(q: str = "", db: Session = Depends(get_db)):
             ).all()
     return templates.TemplateResponse("builds_table.html", {"builds": builds})
 
+@app.get("/builds/add")
+def add_build_form(request: Request, db: Session = Depends(get_db)):
+    cases = db.query(Case).all()
+    pcbs = db.query(PCB).all()
+    switches = db.query(Switch).all()
+    keycaps = db.query(Keycap).all()
+    return templates.TemplateResponse("builds_add.html", {"request": request, "cases": cases, "pcbs": pcbs, "switches": switches, "keycaps": keycaps})
+
+@app.post("/builds/add")
+async def add_build(request: Request, db: Session = Depends(get_db)):
+    form_data = await request.form()
+    item_data = dict(form_data)
+    new_build = Build(**item_data)
+    db.add(new_build)
+    db.commit()
+    db.refresh(new_build)
+    return templates.TemplateResponse("builds_list.html", {"request": request, "builds": db.query(Build).all()})
+
+@app.post("/inventory/{category}/add")
+async def add_inventory(category: str, request: Request, db: Session = Depends(get_db)):
+    form_data = await request.form()
+    item_data = dict(form_data)
+    # Convert checkboxes
+    if 'lubed' in item_data:
+        item_data['lubed'] = item_data['lubed'] == 'on'
+    if 'filmed' in item_data:
+        item_data['filmed'] = item_data['filmed'] == 'on'
+    if category == "cases":
+        new_item = Case(**item_data)
+    elif category == "pcbs":
+        new_item = PCB(**item_data)
+    elif category == "switches":
+        new_item = Switch(**item_data)
+    elif category == "keycaps":
+        new_item = Keycap(**item_data)
+    else:
+        raise HTTPException(status_code=400, detail="Invalid category")
+    db.add(new_item)
+    db.commit()
+    db.refresh(new_item)
+    # Return updated list
+    if category == "cases":
+        items = db.query(Case).all()
+    elif category == "pcbs":
+        items = db.query(PCB).all()
+    elif category == "switches":
+        items = db.query(Switch).all()
+    elif category == "keycaps":
+        items = db.query(Keycap).all()
+    return templates.TemplateResponse("inventory_list.html", {"request": request, "items": items, "category": category})
+
+# Frontend routes
+@app.get("/")
+def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
 @app.post("/builds/add")
 async def add_build(request: Request, db: Session = Depends(get_db)):
     form_data = await request.form()
