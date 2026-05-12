@@ -18,7 +18,15 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.mount("/media", StaticFiles(directory="data/media"), name="media")
 
-templates = Jinja2Templates(directory="app/templates")
+from fastapi.responses import HTMLResponse
+
+# Custom template rendering function
+def render_template(template_name: str, context: dict = None):
+    if context is None:
+        context = {}
+    template = jinja_env.get_template(template_name)
+    html_content = template.render(**context)
+    return HTMLResponse(content=html_content, status_code=200)
 
 # Pydantic models for API
 class CaseCreate(BaseModel):
@@ -46,7 +54,7 @@ def get_inventory_html(category: str, db: Session = Depends(get_db)):
         items = db.query(Keycap).all()
     else:
         raise HTTPException(status_code=400, detail="Invalid category")
-    return templates.TemplateResponse("inventory_list.html", {"items": items, "category": category})
+    return render_template("inventory_list.html", {"items": items, "category": category})
 
 @app.post("/api/inventory/{category}")
 def add_inventory_item(category: str, item: dict, db: Session = Depends(get_db)):
@@ -96,7 +104,7 @@ def get_build_detail(id: str, db: Session = Depends(get_db)):
     build = db.query(Build).filter(Build.id == id).first()
     if not build:
         raise HTTPException(status_code=404, detail="Build not found")
-    return templates.TemplateResponse("build_detail.html", {"build": build})
+    return render_template("build_detail.html", {"build": build})
 
 @app.put("/api/builds/{id}")
 def update_build(id: str, build_update: dict, db: Session = Depends(get_db)):
@@ -161,7 +169,7 @@ def search_builds(q: str = "", db: Session = Depends(get_db)):
                 (Switch.name.ilike(f"%{q}%")) |
                 (Keycap.name.ilike(f"%{q}%"))
             ).all()
-    return templates.TemplateResponse("builds_table.html", {"builds": builds})
+    return render_template("builds_table.html", {"builds": builds})
 
 @app.get("/builds/add")
 def add_build_form(db: Session = Depends(get_db)):
@@ -169,7 +177,7 @@ def add_build_form(db: Session = Depends(get_db)):
     pcbs = db.query(PCB).all()
     switches = db.query(Switch).all()
     keycaps = db.query(Keycap).all()
-    return templates.TemplateResponse("builds_add.html", {"cases": cases, "pcbs": pcbs, "switches": switches, "keycaps": keycaps})
+    return render_template("builds_add.html", {"cases": cases, "pcbs": pcbs, "switches": switches, "keycaps": keycaps})
 
 @app.post("/builds/add")
 async def add_build(request: Request, db: Session = Depends(get_db)):
@@ -179,7 +187,7 @@ async def add_build(request: Request, db: Session = Depends(get_db)):
     db.add(new_build)
     db.commit()
     db.refresh(new_build)
-    return templates.TemplateResponse("builds_list.html", {"builds": db.query(Build).all()})
+    return render_template("builds_list.html", {"builds": db.query(Build).all()})
 
 @app.post("/inventory/{category}/add")
 async def add_inventory(category: str, request: Request, db: Session = Depends(get_db)):
@@ -212,22 +220,12 @@ async def add_inventory(category: str, request: Request, db: Session = Depends(g
         items = db.query(Switch).all()
     elif category == "keycaps":
         items = db.query(Keycap).all()
-    return templates.TemplateResponse("inventory_list.html", {"items": items, "category": category})
+    return render_template("inventory_list.html", {"items": items, "category": category})
 
 # Frontend routes
 @app.get("/")
 def home():
-    return templates.TemplateResponse("index.html", {})
-
-@app.post("/builds/add")
-async def add_build(request: Request, db: Session = Depends(get_db)):
-    form_data = await request.form()
-    item_data = dict(form_data)
-    new_build = Build(**item_data)
-    db.add(new_build)
-    db.commit()
-    db.refresh(new_build)
-    return templates.TemplateResponse("builds_list.html", {"builds": db.query(Build).all()})
+    return render_template("index.html", {})
 
 @app.post("/inventory/{category}/add")
 async def add_inventory(category: str, request: Request, db: Session = Depends(get_db)):
@@ -260,4 +258,4 @@ async def add_inventory(category: str, request: Request, db: Session = Depends(g
         items = db.query(Switch).all()
     elif category == "keycaps":
         items = db.query(Keycap).all()
-    return templates.TemplateResponse("inventory_list.html", {"items": items, "category": category})
+    return render_template("inventory_list.html", {"items": items, "category": category})
